@@ -73,6 +73,60 @@ void type_prompt()
   printf("$$ ");  // Print the shell prompt
 }
 
+int shell_cd(char **args){
+  printf("Hello\n");
+  return 0;
+
+}
+int shell_help(char **args){
+
+}
+int shell_exit(char **args){
+    // If the command is "exit", return 1
+    return 1;
+}
+int shell_usage(char **args){
+
+}
+int list_env(char **args){
+
+}
+int set_env_var(char **args){
+
+}
+int unset_env_var(char **args){
+
+}
+
+void clear_cmd(char *cmd[]){
+    // Free the allocated memory for the command arguments before exiting
+  for (int i = 0; cmd[i] != NULL; i++)
+  {
+    free(cmd[i]);
+    cmd[i] = NULL;
+  }
+}
+
+// Helper function to figure out how many builtin commands are supported by the shell
+int num_builtin_functions()
+{
+    return sizeof(builtin_commands) / sizeof(char *);
+};
+
+int execute_builtin_function(char **args){
+// Loop through our command list and check if the commands exist in the builtin command list
+  for (int command_index = 0; command_index < num_builtin_functions(); command_index++)
+  {
+      if (strcmp(args[0], builtin_commands[command_index]) == 0) // Assume args[0] contains the first word of the command
+      {
+      // We will create new process to run the function with the specific command except for builtin commands.
+      // These have to be done by the shell process. 
+      return (*builtin_command_func[command_index])(args);
+      }
+  }
+  return -1;
+}
+
 // The main function where the shell's execution begins
 int main(void)
 {
@@ -91,10 +145,16 @@ int main(void)
         continue;
     }
 
-    // If the command is "exit", break out of the loop to terminate the shell
-    if (strcmp(cmd[0], "exit") == 0)
-      // break;
+    // exit will return 1, the rest  of builtin commands will return 0, non-builtin commands will return -1
+    int builtin_status = execute_builtin_function(cmd);
+    
+    if (builtin_status == 1){
+      clear_cmd(cmd);
       break;
+    } else if (builtin_status == 0){
+      clear_cmd(cmd);
+      continue;
+    }
 
     pid = fork(); //Fork a child process
 
@@ -121,6 +181,7 @@ int main(void)
       // If execv returns, command execution has failed
       printf("Command %s not found\n", cmd[0]);
       exit(1);
+
     } else {
       //Parent process shell (pid > 0)
 
@@ -139,8 +200,10 @@ int main(void)
     for (int i = 0; cmd[i] != NULL; i++)
     {
       free(cmd[i]);
+      cmd[i] = NULL;
     }
     memset(cwd, '\0', sizeof(cwd)); // clear the cwd array
+
   }
 
   return 0;
