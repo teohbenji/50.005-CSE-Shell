@@ -81,8 +81,14 @@ int main(void)
   int child_status;
   pid_t pid;
 
+  while(1){
   type_prompt();     // Display the prompt
   read_command(cmd); // Read a command from the user
+
+    // If the command is empty, skip to the next iteration
+  if (cmd[0] == NULL || strcmp(cmd[0], "") == 0) {
+      continue;
+  }
 
   // If the command is "exit", break out of the loop to terminate the shell
   if (strcmp(cmd[0], "exit") == 0)
@@ -115,6 +121,7 @@ int main(void)
     free(cmd[i]);
   }
   memset(cwd, '\0', sizeof(cwd)); // clear the cwd array
+  }
 
   return 0;
 }
