@@ -73,12 +73,28 @@ void type_prompt()
   printf("$$ ");  // Print the shell prompt
 }
 
+// Helper function to figure out how many builtin commands are supported by the shell
+int num_builtin_functions()
+{
+    return sizeof(builtin_commands) / sizeof(char *);
+};
+
+
 int shell_cd(char **args){
   printf("Hello\n");
   return 0;
 
 }
 int shell_help(char **args){
+  printf("CSEShell Interface\n");
+  printf("Usage: command arguments\n");
+  printf("The following commands are implemented within the shell:\n");
+
+  // Print each command from builtin_commands array
+  for (int i = 0; i < num_builtin_functions(); i++) {
+      printf("  %s\n", builtin_commands[i]);
+  }
+  return 0;
 
 }
 int shell_exit(char **args){
@@ -106,12 +122,6 @@ void clear_cmd(char *cmd[]){
     cmd[i] = NULL;
   }
 }
-
-// Helper function to figure out how many builtin commands are supported by the shell
-int num_builtin_functions()
-{
-    return sizeof(builtin_commands) / sizeof(char *);
-};
 
 int execute_builtin_function(char **args){
 // Loop through our command list and check if the commands exist in the builtin command list
