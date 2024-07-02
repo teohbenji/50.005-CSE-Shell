@@ -160,7 +160,7 @@ int list_env(char **args){
   return 0;
 }
 int set_env_var(char **args){
-  // Check if args[1] is given
+  // Check if args[1] provided
   if (args[1] == NULL) {
     printf("Usage: setenv <variable>=<value>\n");
     return 0;
@@ -210,8 +210,31 @@ int set_env_var(char **args){
 
   return 0;
 }
-int unset_env_var(char **args){
 
+int unset_env_var(char **args) {
+    // Check if args[1] provided
+    if (args[1] == NULL) {
+        printf("Usage: unsetenv <variable>\n");
+        return 0;
+    }
+
+    // Get the variable name
+    char *variable = args[1];
+
+    // Check if env variable exists
+    if (getenv(variable) == NULL) {
+        // Env variable does not exist
+        return 0;
+    }
+
+    // Unset the env variable
+    if (unsetenv(variable) != 0) {
+        // Failed to unset env variable
+        perror("CSEShell: ");
+        return 0;
+    }
+
+    return 0;
 }
 
 void clear_cmd(char *cmd[]){
