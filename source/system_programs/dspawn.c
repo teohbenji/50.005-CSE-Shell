@@ -20,6 +20,14 @@ static int daemon_work()
     char *cwd;
     char buffer[1024];
 
+    // Clear the log file at the beginning
+    fptr = fopen(output_file_path, "w");
+    if (fptr == NULL) {
+        perror("Error opening log file");
+        return EXIT_FAILURE;
+    }
+    fclose(fptr);
+
     // write PID of daemon in the beginning
     fptr = fopen(output_file_path, "a");
     if (fptr == NULL)
