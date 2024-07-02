@@ -268,18 +268,30 @@ void process_cseshellrc() {
     }
 
     char cseshellrc_path[256];
-    snprintf(cseshellrc_path, sizeof(cseshellrc_path), "%s/.cseshellrc", home_dir);
-
+    snprintf(cseshellrc_path, sizeof(cseshellrc_path), "%s/programming-assignment-1-2024-ci02-r-b/.cseshellrc", home_dir);
     FILE *rc_file = fopen(cseshellrc_path, "r");
     if (rc_file == NULL) {
         // .cseshellrc doesn't exist, do nothing
         return;
     }
 
-    char command[MAX_COMMAND_LENGTH];
-    while (fgets(command, sizeof(command), rc_file) != NULL) {
-        // Execute each command read from .cseshellrc
-        system(command);
+    char line[MAX_COMMAND_LENGTH];
+    while (fgets(line, sizeof(line), rc_file) != NULL) {
+      printf("Hello");
+        // Remove newline character at the end of the line
+        line[strcspn(line, "\n")] = '\0';
+
+        // Check if line starts with "PATH"
+        if (strncmp(line, "PATH=", 5) == 0) {
+            // Modify PATH environment variable
+            setenv("PATH", line + 5, 1); // 1 means overwrite existing value
+        } else {
+            // Execute the command using system()
+            int ret = system(line);
+            if (ret != 0) {
+                fprintf(stderr, "Command failed with return code %d: %s\n", ret, line);
+            }
+        }
     }
 
     fclose(rc_file);
@@ -317,6 +329,7 @@ int main(void)
     }
 
     pid = fork(); //Fork a child process
+    printf("IM DOING THIS THIS THIS");
 
     if (pid < 0) {
       // Failed to fork child process
