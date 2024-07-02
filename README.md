@@ -162,10 +162,10 @@ Restart the shell after making changes.
 The shell prompt contains useful information about the current user, the current time and the working directory.
 
 ### Low-power shell mode
-The shell automatically decreases the screen's brightness after a period of idle time.
+The shell automatically sleeps after 1 minute of idle time.
 ## Sustainability and Inclusivity
 ### Sustainability: Low-power mode shell
-After a certain amount of idle time, the shell decreases the screen's brightness to 50%. This reduction helps conserve energy by minimizing power consumption from display backlighting, promoting environmental sustainability through efficient resource management.
+After 1 minute of idle time, the shell will go to sleep. This reduction helps conserve energy by minimizing power consumption, helping environmental sustainability through smart resource management.
 
 ### Inclusivity: Customizable and Informative Shell Interface
 The CSEShell interface allows users to customise the appearance of the shell's interface to their individual preferences. For example, the user can individually customise the colors in each shell prompt. Each shell prompt also displays the current user, the time now and the current working directory.
