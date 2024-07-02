@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <pwd.h>
 #include <time.h>
+#include <signal.h>
 
 
 #define MAX_LINE 1024

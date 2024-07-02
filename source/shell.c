@@ -119,7 +119,15 @@ int num_builtin_functions()
 
 int shell_cd(char **args){
     if (args[1] == NULL) {
-        fprintf(stderr, "cd: expected argument to \"cd\"\n");
+        // No argument provided with cd, change to HOME directory
+        const char *home_dir = getenv("HOME");
+        if (home_dir == NULL) {
+            fprintf(stderr, "cd: HOME environment variable not set\n");
+        } else {
+            if (chdir(home_dir) != 0) {
+                perror("CSEShell");
+            }
+        }
     } else {
         if (chdir(args[1]) != 0) {
             perror("CSEShell");
@@ -403,8 +411,25 @@ int process_cseshellrc() {
     fclose(file); // Close the file
     return 0;
 }
+volatile sig_atomic_t inactive = 0;
+void enter_low_power_mode(int sig) {
+    printf("\nEntering low-power mode. Press CTRL+C followed by Enter to wake up.\n");
+    inactive = 1;
+    while (inactive) {
+        pause(); // Sleep indefinitely until a signal is caught
+    }
+}
 
-
+void handle_interrupt(int sig) {
+    if (inactive) {
+        inactive = 0;
+        printf("\nExiting low-power mode.");
+        return; // Return to main prompt loop
+    } else {
+      printf("\n");
+        exit(0); // Exit the shell if not in low-power mode
+    }
+}
 
 // The main function where the shell's execution begins
 int main(void)
@@ -417,9 +442,16 @@ int main(void)
 
   process_cseshellrc();
 
+  // Set up the signal handlers
+  signal(SIGALRM, enter_low_power_mode);
+  signal(SIGINT, handle_interrupt);
+  alarm(60); // Set an alarm for 5 seconds
+
   while(1){
     type_prompt();     // Display the prompt
     read_command(cmd); // Read a command from the user
+
+    alarm(60); // Set an alarm for 5 seconds
 
       // If the command is empty, skip to the next iteration
     if (cmd[0] == NULL || strcmp(cmd[0], "") == 0) {
