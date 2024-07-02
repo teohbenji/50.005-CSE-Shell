@@ -294,7 +294,7 @@ int process_cseshellrc() {
 
     char line[MAX_LINE_LENGTH];
     while (fgets(line, sizeof(line), file)) {
-        printf("Line [%s]\n", line); // Print the line read from the file
+        //printf("Line [%s]\n", line); // Print the line read from the file
 
         // Trim leading and trailing whitespace
         char *trimmed_line = trim_whitespace(line);
