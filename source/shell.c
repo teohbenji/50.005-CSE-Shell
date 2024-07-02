@@ -4,8 +4,9 @@
 
 extern char **environ; //Retrieve environment vars
 
-char *color_code1 = ANSI_COLOR_BLUE;  // Default color for USERNAME
-char *color_code2 = ANSI_COLOR_YELLOW;  // Default color for TIME
+char *color_code1 = ANSI_COLOR_RESET;  // Default color for USERNAME
+char *color_code2 = ANSI_COLOR_RESET;  // Default color for TIME
+char *color_code3 = ANSI_COLOR_RESET;  // Default color for DIR
 
 // Function to read a command from the user input
 void read_command(char **cmd)
@@ -98,10 +99,10 @@ void type_prompt()
 
   // Get the current working directory and print the shell prompt
   if (getcwd(cwd, sizeof(cwd)) != NULL) {
-      printf("\n%s>> %s%s%s : %sTime: %02d:%02d%s : ~/%s $ ",
+      printf("\n%s>> %s%s%s : %sTime: %02d:%02d%s : %s~/%s%s $ ",
             color_code1, username, ANSI_COLOR_RESET, color_code1,
             color_code2, timeinfo->tm_hour, timeinfo->tm_min, ANSI_COLOR_RESET,
-            strrchr(cwd, '/') + 1);
+            color_code3, strrchr(cwd, '/') + 1, ANSI_COLOR_RESET);
   } else {
       // If getting the current working directory fails, print an error and fallback prompt
       perror("getcwd");
@@ -318,6 +319,8 @@ char *map_color_to_code(const char *color_name) {
         return ANSI_COLOR_MAGENTA;
     } else if (strcmp(color_name, "CYAN") == 0) {
         return ANSI_COLOR_CYAN;
+    } else if (strcmp(color_name, "PINK") == 0) {
+        return ANSI_COLOR_PINK;
     } else {
         // Default to ANSI_COLOR_RESET if color_name doesn't match any known color
         return ANSI_COLOR_RESET;
@@ -358,6 +361,11 @@ int process_cseshellrc() {
             // Set color_code2 based on the value after "TIME="
             char *time_color = trimmed_line + 5;
             color_code2 = map_color_to_code(time_color);
+        }
+        else if (strncmp(line, "DIR=", 4) == 0) {
+            // Set color_code3 based on the value after "DIR="
+            char *time_color = trimmed_line + 4;
+            color_code3 = map_color_to_code(time_color);
         }
         else {
             // Split the line into arguments
