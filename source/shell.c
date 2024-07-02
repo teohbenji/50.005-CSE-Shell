@@ -410,12 +410,12 @@ int main(void)
       // Wait for the child process to complete
       waitpid(pid, &child_status, 0);
 
-      // Check if child process terminated normally
-      if (WIFEXITED(child_status)) {
-        printf("Child process exited with status %d.\n", WEXITSTATUS(child_status));
-      } else {
-        printf("Child process terminated abnormally.\n");
-      }
+      // // Check if child process terminated normally
+      // if (WIFEXITED(child_status)) {
+      //   printf("Child process exited with status %d.\n", WEXITSTATUS(child_status));
+      // } else {
+      //   printf("Child process terminated abnormally.\n");
+      // }
     }
 
     // Free the allocated memory for the command arguments before exiting
