@@ -144,7 +144,55 @@ int list_env(char **args){
   return 0;
 }
 int set_env_var(char **args){
+  // Check if args[1] is given
+  if (args[1] == NULL) {
+    printf("Usage: setenv <variable>=<value>\n");
+    return 0;
+  }
 
+  // Get position of '=' in args[1]
+  char *equals_pos = strchr(args[1], '=');
+
+  if (equals_pos == NULL) {
+    // '=' not found
+    printf("Usage: setenv <variable>=<value>\n");
+    return 0;
+  }
+
+  // Separation of variable and value
+  *equals_pos = '\0'; //set = to null term, points equal pos to start of value after =
+  char *variable = args[1];
+  char *value = equals_pos + 1; //value starts after '='
+
+  if (value[0] != '"' || value[strlen(value) - 1] != '"') {
+    //Value is not enclosed properly by ""
+    printf("Usage: setenv <variable>=<value>\n");
+    return 0;
+  }
+
+  value[strlen(value) - 1] = '\0'; // Remove the closing quote
+  value += 1; // Skip the opening quote
+
+  // Allocate memory for str 2 accounts for = and null terminator
+  char *env_var = malloc(strlen(variable) + strlen(value) + 2); 
+  
+  if (env_var == NULL) {
+    // Failed to allocate memory
+    perror("CSEShell: ");
+    return 0;
+  } 
+
+  // Construct the environment variable string
+  sprintf(env_var, "%s=%s", variable, value);
+
+  if (putenv(env_var) != 0) {
+    // Failed to set environment variable
+    perror("CSEShell: ");
+    free(env_var); //dealloc memory
+    return 0;
+  }
+
+  return 0;
 }
 int unset_env_var(char **args){
 
