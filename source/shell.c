@@ -260,7 +260,7 @@ int execute_builtin_function(char **args){
   }
   return -1;
 }
-// Function to trim leading and trailing whitespace from a string
+// Trim leading and trailing whitespace from a string
 char* trim_whitespace(char* str) {
     char* end;
 
@@ -294,26 +294,26 @@ int process_cseshellrc() {
 
     char line[MAX_LINE_LENGTH];
     while (fgets(line, sizeof(line), file)) {
-        printf("Line [%s]\n", line); // Print the line read from the file
+        //printf("Line [%s]\n", line); // Print the line read from the file
 
         // Trim leading and trailing whitespace
-        char *trimmed_line = trim_whitespace(line);
+        // char *trimmed_line = trim_whitespace(line);
 
         // Check if line starts with "PATH"
-        if (strncmp(trimmed_line, "PATH=", 5) == 0) {
+        if (strncmp(line, "PATH=", 5) == 0) {
             // Modify PATH environment variable
-            printf("Setting PATH: %s\n", trimmed_line + 5);
-            setenv("PATH", trimmed_line + 5, 1); // 1 means overwrite existing value
+            printf("Setting PATH: %s\n", line + 5);
+            setenv("PATH", line + 5, 1); // 1 means overwrite existing value
         } else {
             // Split the line into arguments
             char *args[MAX_ARGS];
             char *token;
             int argc = 0;
 
-            token = strtok(trimmed_line, " ");
+            token = strtok(line, " \n");
             while (token != NULL && argc < MAX_ARGS - 1) {
                 args[argc++] = token;
-                token = strtok(NULL, " ");
+                token = strtok(NULL, " \n");
             }
             args[argc] = NULL; // Mark the end of the arguments array with NULL
 

@@ -1,3 +1,6 @@
 PATH=/home/benjamin-teoh/programming-assignment-1-2024-ci02-r-b:/usr/bin
 clear
-cal
+date
+ls
+pwd
+ls -a
