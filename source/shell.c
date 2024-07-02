@@ -1,6 +1,6 @@
 // Include the shell header file for necessary constants and function declarations
 #include "shell.h"
-#define MAX_COMMAND_LENGTH 100
+#define MAX_LINE_LENGTH 1024
 
 extern char **environ; //Retrieve environment vars
 
@@ -62,16 +62,16 @@ void type_prompt()
 {
   // Use a static variable to check if this is the first call to the function
   static int first_time = 1;
-  if (first_time)
-  {
-    // Clear the screen on the first call
-#ifdef _WIN32
-    system("cls"); // Windows command to clear screen
-#else
-    system("clear"); // UNIX/Linux command to clear screen
-#endif
-    first_time = 0;
-  }
+//   if (first_time)
+//   {
+//     // Clear the screen on the first call
+// #ifdef _WIN32
+//     system("cls"); // Windows command to clear screen
+// #else
+//     system("clear"); // UNIX/Linux command to clear screen
+// #endif
+//     first_time = 0;
+//   }
   fflush(stdout); // Flush the output buffer
   //printf("$$ ");  // Print the shell prompt
 
@@ -260,42 +260,77 @@ int execute_builtin_function(char **args){
   }
   return -1;
 }
-void process_cseshellrc() {
-    const char *home_dir = getenv("HOME");
-    if (home_dir == NULL) {
-        fprintf(stderr, "Unable to determine HOME directory.\n");
-        exit(1);
+int process_cseshellrc()
+{
+    const char *filePath = "/home/spyabi/programming-assignment-1-2024-ci02-r-b/.cseshellrc"; // Specify the path to your file
+
+    FILE *file = fopen(filePath, "r");
+    if (file == NULL)
+    {
+        perror("Failed to open file");
+        _exit(1);
     }
 
-    char cseshellrc_path[256];
-    snprintf(cseshellrc_path, sizeof(cseshellrc_path), "%s/programming-assignment-1-2024-ci02-r-b/.cseshellrc", home_dir);
-    FILE *rc_file = fopen(cseshellrc_path, "r");
-    if (rc_file == NULL) {
-        // .cseshellrc doesn't exist, do nothing
-        return;
-    }
+    char line[MAX_LINE_LENGTH];
+    while (fgets(line, sizeof(line), file))
+    {
 
-    char line[MAX_COMMAND_LENGTH];
-    while (fgets(line, sizeof(line), rc_file) != NULL) {
-      printf("Hello");
-        // Remove newline character at the end of the line
-        line[strcspn(line, "\n")] = '\0';
-
+        printf("Line [%s]\n", line); // Print the line read from the file
+                                     // fflush(0);
         // Check if line starts with "PATH"
         if (strncmp(line, "PATH=", 5) == 0) {
             // Modify PATH environment variable
+            printf("Setting PATH: %s\n", line + 5);
             setenv("PATH", line + 5, 1); // 1 means overwrite existing value
-        } else {
-            // Execute the command using system()
-            int ret = system(line);
-            if (ret != 0) {
-                fprintf(stderr, "Command failed with return code %d: %s\n", ret, line);
-            }
+        }
+        else{
+          // // Remove newline character at the end of the line
+          // line[strcspn(line, "\n")] = '\0';
+
+          // Split the line into arguments
+          char *args[MAX_ARGS];
+          char *token;
+          int argc = 0;
+
+          token = strtok(line, "\n");
+          while (token != NULL && argc < MAX_ARGS - 1)
+          {
+              args[argc++] = token;
+              token = strtok(NULL, "\n");
+          }
+          args[argc] = NULL; // Mark the end of the arguments array with NULL
+
+          pid_t pid = fork();
+          if (pid == -1)
+          {
+              // If fork() returns -1, an error occurred
+              perror("fork failed");
+              _exit(1);
+          }
+          else if (pid == 0)
+          {
+              // Child process
+              // Execute command
+              execvp(args[0], args);
+
+              // If execvp returns, it must have failed
+              // If execv returns, command execution has failed
+              printf("Command %s not found\n", args[0]);
+              _exit(0); // Exit child process, should've used _exit(EXIT_SUCCESS) instead
+          }
+          else
+          {
+              // Parent process
+              int status;
+              waitpid(pid, &status, 0); // Wait for child process to finish
+          }
         }
     }
 
-    fclose(rc_file);
+    fclose(file); // Close the file
+    return 0;
 }
+
 
 // The main function where the shell's execution begins
 int main(void)
@@ -329,7 +364,6 @@ int main(void)
     }
 
     pid = fork(); //Fork a child process
-    printf("IM DOING THIS THIS THIS");
 
     if (pid < 0) {
       // Failed to fork child process
