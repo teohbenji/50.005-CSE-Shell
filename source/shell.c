@@ -1,6 +1,8 @@
 // Include the shell header file for necessary constants and function declarations
 #include "shell.h"
 
+extern char **environ; //Retrieve environment vars
+
 // Function to read a command from the user input
 void read_command(char **cmd)
 {
@@ -132,7 +134,14 @@ int shell_usage(char **args){
   return 0;
 }
 int list_env(char **args){
-
+  char **env = environ; // Pointer to the array of environment strings
+    
+  while (*env) { // Loop until NULL pointer is encountered
+      printf("%s\n", *env); // Print the current environment variable
+      env++; // Move to the next environment variable
+  }
+  
+  return 0;
 }
 int set_env_var(char **args){
 
