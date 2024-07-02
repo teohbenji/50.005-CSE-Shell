@@ -276,10 +276,12 @@ int main(void)
 
       // Formulate the full path of the command to be executed
       char full_path[PATH_MAX];
+      // Get home directory
+      const char *home_dir = getenv("HOME");
       if (getcwd(cwd, sizeof(cwd)) != NULL)
       {
         //snprintf(full_path, sizeof(full_path), "%s/bin/%s", cwd, cmd[0]); //previous relative path
-        snprintf(full_path, sizeof(full_path), "/home/spyabi/programming-assignment-1-2024-ci02-r-b/bin/%s", cmd[0]); //absolute path
+        snprintf(full_path, sizeof(full_path), "%s/programming-assignment-1-2024-ci02-r-b/bin/%s", home_dir, cmd[0]); //absolute path
       }
       else
       {
