@@ -97,6 +97,8 @@ int main() {
                 close(x);
             } 
 
+            int fd0, fd1, fd2;
+
             /* Attach fds 0,1,2 to /dev/null. */ 
             fd0 = open("/dev/null", O_RDWR);
             fd1 = dup(0);
