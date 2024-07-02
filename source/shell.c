@@ -1,5 +1,6 @@
 // Include the shell header file for necessary constants and function declarations
 #include "shell.h"
+#define MAX_COMMAND_LENGTH 100
 
 extern char **environ; //Retrieve environment vars
 
@@ -259,6 +260,30 @@ int execute_builtin_function(char **args){
   }
   return -1;
 }
+void process_cseshellrc() {
+    const char *home_dir = getenv("HOME");
+    if (home_dir == NULL) {
+        fprintf(stderr, "Unable to determine HOME directory.\n");
+        exit(1);
+    }
+
+    char cseshellrc_path[256];
+    snprintf(cseshellrc_path, sizeof(cseshellrc_path), "%s/.cseshellrc", home_dir);
+
+    FILE *rc_file = fopen(cseshellrc_path, "r");
+    if (rc_file == NULL) {
+        // .cseshellrc doesn't exist, do nothing
+        return;
+    }
+
+    char command[MAX_COMMAND_LENGTH];
+    while (fgets(command, sizeof(command), rc_file) != NULL) {
+        // Execute each command read from .cseshellrc
+        system(command);
+    }
+
+    fclose(rc_file);
+}
 
 // The main function where the shell's execution begins
 int main(void)
@@ -268,6 +293,8 @@ int main(void)
   int child_status;
   pid_t pid;
   char cwd[1024]; //Stores current working directory
+
+  process_cseshellrc();
 
   while(1){
     type_prompt();     // Display the prompt
