@@ -260,76 +260,87 @@ int execute_builtin_function(char **args){
   }
   return -1;
 }
-int process_cseshellrc()
-{
-    const char *filePath = "/home/spyabi/programming-assignment-1-2024-ci02-r-b/.cseshellrc"; // Specify the path to your file
+// Function to trim leading and trailing whitespace from a string
+char* trim_whitespace(char* str) {
+    char* end;
+
+    // Trim leading space
+    while (*str == ' ' || *str == '\t' || *str == '\n' || *str == '\r')
+        str++;
+
+    if (*str == 0)
+        return str;
+
+    // Trim trailing space
+    end = str + strlen(str) - 1;
+    while (end > str && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r'))
+        end--;
+
+    // Write new null terminator
+    *(end + 1) = '\0';
+
+    return str;
+}
+
+// Main function to process the .cseshellrc file
+int process_cseshellrc() {
+    const char *filePath = "/home/benjamin-teoh/programming-assignment-1-2024-ci02-r-b/.cseshellrc"; // Specify the path to your file
 
     FILE *file = fopen(filePath, "r");
-    if (file == NULL)
-    {
+    if (file == NULL) {
         perror("Failed to open file");
         _exit(1);
     }
 
     char line[MAX_LINE_LENGTH];
-    while (fgets(line, sizeof(line), file))
-    {
-
+    while (fgets(line, sizeof(line), file)) {
         printf("Line [%s]\n", line); // Print the line read from the file
-                                     // fflush(0);
+
+        // Trim leading and trailing whitespace
+        char *trimmed_line = trim_whitespace(line);
+
         // Check if line starts with "PATH"
-        if (strncmp(line, "PATH=", 5) == 0) {
+        if (strncmp(trimmed_line, "PATH=", 5) == 0) {
             // Modify PATH environment variable
-            printf("Setting PATH: %s\n", line + 5);
-            setenv("PATH", line + 5, 1); // 1 means overwrite existing value
-        }
-        else{
-          // // Remove newline character at the end of the line
-          // line[strcspn(line, "\n")] = '\0';
+            printf("Setting PATH: %s\n", trimmed_line + 5);
+            setenv("PATH", trimmed_line + 5, 1); // 1 means overwrite existing value
+        } else {
+            // Split the line into arguments
+            char *args[MAX_ARGS];
+            char *token;
+            int argc = 0;
 
-          // Split the line into arguments
-          char *args[MAX_ARGS];
-          char *token;
-          int argc = 0;
+            token = strtok(trimmed_line, " ");
+            while (token != NULL && argc < MAX_ARGS - 1) {
+                args[argc++] = token;
+                token = strtok(NULL, " ");
+            }
+            args[argc] = NULL; // Mark the end of the arguments array with NULL
 
-          token = strtok(line, "\n");
-          while (token != NULL && argc < MAX_ARGS - 1)
-          {
-              args[argc++] = token;
-              token = strtok(NULL, "\n");
-          }
-          args[argc] = NULL; // Mark the end of the arguments array with NULL
+            pid_t pid = fork();
+            if (pid == -1) {
+                // If fork() returns -1, an error occurred
+                perror("fork failed");
+                _exit(1);
+            } else if (pid == 0) {
+                // Child process
+                execvp(args[0], args);
 
-          pid_t pid = fork();
-          if (pid == -1)
-          {
-              // If fork() returns -1, an error occurred
-              perror("fork failed");
-              _exit(1);
-          }
-          else if (pid == 0)
-          {
-              // Child process
-              // Execute command
-              execvp(args[0], args);
-
-              // If execvp returns, it must have failed
-              // If execv returns, command execution has failed
-              printf("Command %s not found\n", args[0]);
-              _exit(0); // Exit child process, should've used _exit(EXIT_SUCCESS) instead
-          }
-          else
-          {
-              // Parent process
-              int status;
-              waitpid(pid, &status, 0); // Wait for child process to finish
-          }
+                // If execvp returns, it must have failed
+                printf("Command %s not found\n", args[0]);
+                _exit(1);
+            } else {
+                // Parent process
+                int status;
+                waitpid(pid, &status, 0); // Wait for child process to finish
+            }
         }
     }
 
     fclose(file); // Close the file
     return 0;
 }
+
 
 
 // The main function where the shell's execution begins
