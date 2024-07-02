@@ -284,7 +284,8 @@ char* trim_whitespace(char* str) {
 
 // Main function to process the .cseshellrc file
 int process_cseshellrc() {
-    const char *filePath = "/home/spyabi/programming-assignment-1-2024-ci02-r-b/.cseshellrc"; // Specify the path to your file
+    //NOTE: Edit file directory accordingly  
+    const char *filePath = "/home/benjamin-teoh/programming-assignment-1-2024-ci02-r-b/.cseshellrc"; // Specify the path to your file
 
     FILE *file = fopen(filePath, "r");
     if (file == NULL) {
@@ -397,7 +398,7 @@ int main(void)
         exit(1);
       }
 
-      execv(full_path, cmd);
+      execvp(cmd[0], cmd);
 
       // If execv returns, command execution has failed
       printf("Command %s not found\n", cmd[0]);
