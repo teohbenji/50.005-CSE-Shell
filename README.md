@@ -70,3 +70,103 @@ make clean
 ## Source Directory
 
 Contains all the necessary source code for the shell and system programs. It is divided into the shell implementation (`shell.c`, `shell.h`) and system programs (`system_programs/`).
+
+## Builtin Functions
+
+### `cd`
+Changes the current directory of the shell to the provided file path. If no path is given, it switches to the user's home directory.
+
+##### Usage:
+```code
+$ cd <directory_path>
+```
+
+### `help`
+Lists all built-in commands of the shell
+
+##### Usage:
+```code
+$ help 
+```
+
+### `exit`
+Exits the shell progam gracefully.
+
+##### Usage:
+```code
+$ exit 
+```
+
+### `usage`
+Briefly explains how to use the specified shell command. 
+
+##### Usage:
+```code
+$ usage <command> 
+```
+
+### `env`
+Lists all environment variables in the current shell session.
+
+##### Usage:
+```code
+$ env 
+```
+
+### `setenv`
+Creates or edits an environment variable within the current shell session.
+
+##### Usage:
+```code
+$ setenv <variable>="<value>" 
+```
+
+### `unsetenv`
+Removes an environment variable from the shell.
+
+##### Usage:
+```code
+$ unsetenv <variable>
+```
+
+
+## Additional Features
+
+### `.cseshellrc` Configuration File
+
+The configuration file contains the path variable, commands that will be executed upon initialisation and color customisation.
+
+Edit the shell's executable search path as follows:
+
+```code
+PATH=<cseshell_location>/bin:/usr/bin
+```
+
+Commands on each line following `PATH=` will execute on shell startup. These commands include builtin programs and programs in usr/bin.
+```code
+<command>
+<command> <arg>
+```
+
+
+Modify the shell's username and time for every prompt as follows. The colors `RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, PINK`are available. If a color isn't specified, it defaults to white.
+```code
+USERNAME=<color>
+TIME=<color>
+DIR=<color>
+```
+
+Restart the shell after making changes.
+
+### Informative shell prompt
+The shell prompt contains useful information about the current user, the current time and the working directory.
+
+### Low-power shell mode
+The shell automatically decreases the screen's brightness after a period of idle time.
+## Sustainability and Inclusivity
+### Sustainability: Low-power mode shell
+After a certain amount of idle time, the shell decreases the screen's brightness to 50%. This reduction helps conserve energy by minimizing power consumption from display backlighting, promoting environmental sustainability through efficient resource management.
+
+### Inclusivity: Customizable and Informative Shell Interface
+The CSEShell interface allows users to customise the appearance of the shell's interface to their individual preferences. For example, the user can individually customise the colors in each shell prompt. Each shell prompt also displays the current user, the time now and the current working directory.
+
