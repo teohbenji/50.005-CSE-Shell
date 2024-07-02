@@ -72,7 +72,17 @@ void type_prompt()
     first_time = 0;
   }
   fflush(stdout); // Flush the output buffer
-  printf("$$ ");  // Print the shell prompt
+  //printf("$$ ");  // Print the shell prompt
+
+  char cwd[1024]; // Buffer to hold the current working directory
+  // Get the current working directory and print the shell prompt
+  if (getcwd(cwd, sizeof(cwd)) != NULL) {
+      printf("$$ %s $$ ", cwd);
+  } else {
+      // If getting the current working directory fails, print an error and fallback prompt
+      perror("getcwd");
+      printf("$$ ");
+  }
 }
 
 // Helper function to figure out how many builtin commands are supported by the shell
@@ -83,10 +93,16 @@ int num_builtin_functions()
 
 
 int shell_cd(char **args){
-  printf("Hello\n");
+    if (args[1] == NULL) {
+        fprintf(stderr, "cd: expected argument to \"cd\"\n");
+    } else {
+        if (chdir(args[1]) != 0) {
+            perror("CSEShell");
+        }
+    }
   return 0;
-
 }
+
 int shell_help(char **args){
   printf("CSEShell Interface\n");
   printf("Usage: command arguments\n");
@@ -262,7 +278,8 @@ int main(void)
       char full_path[PATH_MAX];
       if (getcwd(cwd, sizeof(cwd)) != NULL)
       {
-        snprintf(full_path, sizeof(full_path), "%s/bin/%s", cwd, cmd[0]);
+        //snprintf(full_path, sizeof(full_path), "%s/bin/%s", cwd, cmd[0]); //previous relative path
+        snprintf(full_path, sizeof(full_path), "/home/spyabi/programming-assignment-1-2024-ci02-r-b/bin/%s", cmd[0]); //absolute path
       }
       else
       {
