@@ -492,7 +492,13 @@ int main(void)
         exit(1);
       }
 
-      execvp(cmd[0], cmd);
+      //execv(full_path, cmd); // prev command
+      
+      // Attempt to execute the command with the full path
+      if (execv(full_path, cmd) == -1) {
+          // If execv fails, try execvp with just the command name
+          execvp(cmd[0], cmd);
+      }
 
       // If execv returns, command execution has failed
       printf("Command %s not found\n", cmd[0]);
