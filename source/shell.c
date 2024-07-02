@@ -302,15 +302,15 @@ int process_cseshellrc() {
         // Check if line starts with "PATH"
         if (strncmp(line, "PATH=", 5) == 0) {
             // Modify PATH environment variable
-            printf("Setting PATH: %s\n", line + 5);
-            setenv("PATH", line + 5, 1); // 1 means overwrite existing value
+            printf("Setting PATH: %s\n", trimmed_line + 5);
+            setenv("PATH", trimmed_line + 5, 1); // 1 means overwrite existing value
         } else {
             // Split the line into arguments
             char *args[MAX_ARGS];
             char *token;
             int argc = 0;
 
-            token = strtok(line, " \n");
+            token = strtok(trimmed_line, " \n");
             while (token != NULL && argc < MAX_ARGS - 1) {
                 args[argc++] = token;
                 token = strtok(NULL, " \n");
