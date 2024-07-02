@@ -4,11 +4,25 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/time.h>
+#include <pwd.h>
+#include <time.h>
 
 
 #define MAX_LINE 1024
 #define MAX_ARGS 64
 #define BIN_PATH "./bin/"
+
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+
+extern char *color_code1;
+extern char *color_code2;
 
 const char *builtin_commands[] = {
     "cd",    // Changes the current directory of the shell to the specified path. If no path is given, it defaults to the user's home directory.

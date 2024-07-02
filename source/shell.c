@@ -4,6 +4,9 @@
 
 extern char **environ; //Retrieve environment vars
 
+char *color_code1 = ANSI_COLOR_BLUE;  // Default color for USERNAME
+char *color_code2 = ANSI_COLOR_YELLOW;  // Default color for TIME
+
 // Function to read a command from the user input
 void read_command(char **cmd)
 {
@@ -76,9 +79,29 @@ void type_prompt()
   //printf("$$ ");  // Print the shell prompt
 
   char cwd[1024]; // Buffer to hold the current working directory
+  char *username;
+  struct timeval tv;
+  struct tm *timeinfo;
+
+  // Get the username
+  uid_t uid = getuid();
+  struct passwd *pw = getpwuid(uid);
+  if (pw != NULL) {
+      username = pw->pw_name;
+  } else {
+      username = "unknown";
+  }
+
+    // Get current time
+    gettimeofday(&tv, NULL);
+    timeinfo = localtime(&tv.tv_sec);
+
   // Get the current working directory and print the shell prompt
   if (getcwd(cwd, sizeof(cwd)) != NULL) {
-      printf("$$ %s $$ ", cwd);
+      printf("\n%s>> %s%s%s : %sTime: %02d:%02d%s : ~/%s $ ",
+            color_code1, username, ANSI_COLOR_RESET, color_code1,
+            color_code2, timeinfo->tm_hour, timeinfo->tm_min, ANSI_COLOR_RESET,
+            strrchr(cwd, '/') + 1);
   } else {
       // If getting the current working directory fails, print an error and fallback prompt
       perror("getcwd");
@@ -282,6 +305,25 @@ char* trim_whitespace(char* str) {
     return str;
 }
 
+char *map_color_to_code(const char *color_name) {
+    if (strcmp(color_name, "RED") == 0) {
+        return ANSI_COLOR_RED;
+    } else if (strcmp(color_name, "GREEN") == 0) {
+        return ANSI_COLOR_GREEN;
+    } else if (strcmp(color_name, "YELLOW") == 0) {
+        return ANSI_COLOR_YELLOW;
+    } else if (strcmp(color_name, "BLUE") == 0) {
+        return ANSI_COLOR_BLUE;
+    } else if (strcmp(color_name, "MAGENTA") == 0) {
+        return ANSI_COLOR_MAGENTA;
+    } else if (strcmp(color_name, "CYAN") == 0) {
+        return ANSI_COLOR_CYAN;
+    } else {
+        // Default to ANSI_COLOR_RESET if color_name doesn't match any known color
+        return ANSI_COLOR_RESET;
+    }
+}
+
 // Main function to process the .cseshellrc file
 int process_cseshellrc() {
     //NOTE: Edit file directory accordingly  
@@ -305,7 +347,19 @@ int process_cseshellrc() {
             // Modify PATH environment variable
             printf("Setting PATH: %s\n", trimmed_line + 5);
             setenv("PATH", trimmed_line + 5, 1); // 1 means overwrite existing value
-        } else {
+        } 
+            // Check if line starts with "USERNAME="
+        else if (strncmp(line, "USERNAME=", 9) == 0) {
+            // Set color_code1 based on the value after "USERNAME="
+            char *username_color = trimmed_line + 9;
+            color_code1 = map_color_to_code(username_color);
+        } 
+        else if (strncmp(line, "TIME=", 5) == 0) {
+            // Set color_code2 based on the value after "TIME="
+            char *time_color = trimmed_line + 5;
+            color_code2 = map_color_to_code(time_color);
+        }
+        else {
             // Split the line into arguments
             char *args[MAX_ARGS];
             char *token;
@@ -424,9 +478,8 @@ int main(void)
       free(cmd[i]);
       cmd[i] = NULL;
     }
-    memset(cwd, '\0', sizeof(cwd)); // clear the cwd array
-
+  memset(cwd, '\0', sizeof(cwd)); // clear the cwd array
   }
-
+  
   return 0;
 }
