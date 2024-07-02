@@ -285,7 +285,7 @@ char* trim_whitespace(char* str) {
 // Main function to process the .cseshellrc file
 int process_cseshellrc() {
     //NOTE: Edit file directory accordingly  
-    const char *filePath = "/home/benjamin-teoh/programming-assignment-1-2024-ci02-r-b/.cseshellrc"; // Specify the path to your file
+    const char *filePath = "/home/spyabi/programming-assignment-1-2024-ci02-r-b/.cseshellrc"; // Specify the path to your file
 
     FILE *file = fopen(filePath, "r");
     if (file == NULL) {
